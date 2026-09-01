@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Little Reminder For You ✨</title>
+  <style>
+    :root {
+      --bg-color: #fdfbf7;
+      --card-bg: #ffffff;
+      --accent: #e07a5f;
+      --text: #2b2d42;
+      --subtext: #6c757d;
+      --header-bg: #f9f6f1;
+    }
+
+    body.dark-mode {
+      --bg-color: #1a1a1a;
+      --card-bg: #2d2d2d;
+      --accent: #ff8b6b;
+      --text: #f0f0f0;
+      --subtext: #b0b0b0;
+      --header-bg: #252525;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Main Header Area */
+    .hero {
+      width: 100%;
+      background: var(--header-bg);
+      padding: 50px 20px;
+      text-align: center;
+      border-bottom: 2px solid rgba(0,0,0,0.03);
+      position: relative;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(0,0,0,0.1);
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      color: var(--text);
+    }
+
+    body.dark-mode .theme-toggle {
+      background: rgba(45, 45, 45, 0.8);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .hero-profile {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 5px solid white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      object-fit: cover;
+    }
+
+    .hero h1 { font-size: 2.2rem; margin-bottom: 10px; font-weight: 700; }
+    .hero p { color: var(--subtext); font-size: 1.1rem; max-width: 400px; margin: 0 auto; }
+
+    /* Main Content Container */
+    .container {
+      max-width: 600px;
+      width: 100%;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    /* Note Generator Box */
+    .note-box {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 35px 25px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.06);
+      margin-bottom: 25px;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 500;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .note-box::after { /* Cute corner sparkle */
+      content: '✨'; position: absolute; top: -15px; right: -15px; font-size: 1.5rem;
+    }
+
+    button.reminder-btn {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 35px;
+      cursor: pointer;
+      transition: transform 0.1s ease, opacity 0.2s ease;
+      margin-bottom: 50px;
+    }
+
+    button.reminder-btn:hover { opacity: 0.95; }
+    button.reminder-btn:active { transform: scale(0.97); }
+
+    /* Collages Section: Her World */
+    .world-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    .collage-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .collage-item {
+      position: relative;
+      background: var(--card-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .collage-item:hover { transform: scale(1.03); }
+
+    .collage-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 24px;
+    }
+
+    .fullscreen-overlay.visible {
+      display: flex;
+    }
+
+    .fullscreen-image {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 18px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+      background: #fff;
+    }
+
+    .fullscreen-close {
+      position: absolute;
+      top: 20px;
+      right: 22px;
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* Little Things Section (Treat Shelf) */
+    .shelf-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .treat-shelf {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 50px;
+    }
+
+    .treat-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .treat-card img {
+      width: 45px;
+      height: 45px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .treat-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+    .treat-card p { font-size: 0.8rem; color: var(--subtext); }
+
+    .footer-note {
+      font-size: 0.9rem;
+      color: var(--subtext);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 1. Hero Header -->
+  <header class="hero">
+    <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle Dark Mode">
+      <span id="themeIcon">🌙</span>
+    </button>
+    <img src="images/her-profile.png" alt="Her Profile" class="hero-profile">
+    <h1>Hey Queen here is your world ✨</h1>
+    <p>A little space for when you need a gentle reminder.</p>
+  </header>
+
+  <div class="container">
+    
+    <!-- 2. Interactive Note Box -->
+    <div class="note-box" id="noteDisplay">
+      Tap below for a little extra kindness today.
+    </div>
+    <button class="reminder-btn" onclick="newNote()">Give me a reminder</button>
+
+    <!-- Bandcamp Player -->
+    <div style="margin-bottom: 40px; border-radius: 8px; overflow: hidden;">
+      <iframe style="border: 0; width: 100%; height: 42px;" src="https://bandcamp.com/EmbeddedPlayer/album=1142202206/size=small/bgcol=333333/linkcol=0f91ff/track=3086241985/transparent=true/autoplay=true/" seamless><a href="https://wisdom-in-chains.bandcamp.com/album/the-god-rhythm">The God Rhythm by Wisdom in Chains</a></iframe>
+    </div>
+
+    <!-- 3. Her World: Dynamic Collages -->
+    <h2 class="world-title">Your World, Beautifully 🌻</h2>
+    <div class="collage-grid">
+      <!-- Highlighting your favorite moments -->
+      <div class="collage-item" style="grid-row: span 2;">
+        <img src="images/her-son-collage.png" alt="Her and Son Collage">
+      </div>
+      <div class="collage-item">
+        <img src="images/hero-son.png" alt="Solo Son Shot">
+      </div>
+      <div class="collage-item">
+        <img src="images/son-collage.png" alt="Another Son Collage">
+      </div>
+    </div>
+
+    <!-- 4. Her Little Things: Visual Treats Shelf -->
+    <h2 class="shelf-title">A Few Favorite Vibe Checkers 💫</h2>
+    <div class="treat-shelf">
+      <div class="treat-card">
+        <img src="images/treat-coffee.png" alt="Perfect Coffee">
+        <div>
+          <h3>Comfort Brew</h3>
+          <p>Always hits the spot</p>
+        </div>
+      </div>
+      <div class="treat-card">
+        <img src="images/treat-hello-kitty.png" alt="Hello Kitty Vibe">
+        <div>
+          <h3>Hello Kitty</h3>
+          <p>Pure happiness</p>
+        </div>
+      </div>
+      <div class="treat-card">
+        <img src="images/treat-frappe.png" alt="Frappe Treat">
+        <div>
+          <h3>Frappe Hour</h3>
+          <p>The perfect pick-me-up</p>
+        </div>
+      </div>
+      <div class="treat-card">
+        <img src="images/treat-cups.png" alt="Fun Cups">
+        <div>
+          <h3>Favorite Vibe</h3>
+          <p>The aesthetic she loves</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="footer-note">Hope this brought a smile. Just remember how special you are.</p>
+    <p class="footer-note" style="margin-top: 10px; font-weight: 600;">Created by Zak ❤️</p>
+  </div>
+
+  <div id="imageModal" class="fullscreen-overlay" aria-hidden="true">
+    <button id="closeImageModal" class="fullscreen-close" aria-label="Close full screen image">&times;</button>
+    <img id="fullscreenImage" class="fullscreen-image" src="" alt="Expanded view" />
+  </div>
+
+  <script>
+    const notes = [
+      "Just wanted to remind you: You are incredibly capable.",
+      "The way you handle everything is admirable.",
+      "I hope your coffee was perfect and your morning even better.",
+      "You have an amazing smile—don't let anyone take it away.",
+      "Take a breath. You've got this, no matter what.",
+      "I appreciate your passion and your heart so much.",
+      "Reminder: Your son is lucky to have you as a mom.",
+      "Whatever challenge is ahead today, you will shine.",
+      "You're a natural at this whole 'being awesome' thing.",
+      "We are going to get away from this madness soon, and I can't wait to see you smile again.",
+    ];
+
+    let lastNoteIndex = -1;
+
+    function newNote() {
+      const display = document.getElementById("noteDisplay");
+      let randomIndex;
+
+      // Ensure the same note doesn't repeat back-to-back
+      do {
+        randomIndex = Math.floor(Math.random() * notes.length);
+      } while (randomIndex === lastNoteIndex);
+
+      lastNoteIndex = randomIndex;
+      display.textContent = notes[randomIndex];
+    }
+
+    // Dark Mode Logic
+    const toggleBtn = document.getElementById('darkModeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const body = document.body;
+
+    function enableDarkMode() {
+      body.classList.add('dark-mode');
+      themeIcon.textContent = '☀️';
+      localStorage.setItem('theme', 'dark');
+    }
+
+    function disableDarkMode() {
+      body.classList.remove('dark-mode');
+      themeIcon.textContent = '🌙';
+      localStorage.setItem('theme', 'light');
+    }
+
+    // Check for saved preference or system preference
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      enableDarkMode();
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (body.classList.contains('dark-mode')) {
+        disableDarkMode();
+      } else {
+        enableDarkMode();
+      }
+    });
+
+    const imageModal = document.getElementById('imageModal');
+    const fullscreenImage = document.getElementById('fullscreenImage');
+    const closeImageModal = document.getElementById('closeImageModal');
+
+    function openImageModal(src, alt) {
+      fullscreenImage.src = src;
+      fullscreenImage.alt = alt;
+      imageModal.classList.add('visible');
+      imageModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeImage() {
+      imageModal.classList.remove('visible');
+      imageModal.setAttribute('aria-hidden', 'true');
+      fullscreenImage.src = '';
+    }
+
+    document.querySelectorAll('img').forEach((img) => {
+      img.addEventListener('click', () => {
+        openImageModal(img.src, img.alt);
+      });
+    });
+
+    closeImageModal.addEventListener('click', closeImage);
+    imageModal.addEventListener('click', (event) => {
+      if (event.target === imageModal) {
+        closeImage();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && imageModal.classList.contains('visible')) {
+        closeImage();
+      }
+    });
+  </script>
+
+</body>
+</html>
